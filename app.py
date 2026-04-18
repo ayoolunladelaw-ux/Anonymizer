@@ -92,7 +92,15 @@ st.markdown("---")
 @st.cache_resource
 def load_analyzer():
     """Load Presidio analyzer with custom recognizers. Cached so it loads once per session."""
-    analyzer = AnalyzerEngine()
+    from presidio_analyzer.nlp_engine import NlpEngineProvider
+    
+    nlp_configuration = {
+        "nlp_engine_name": "spacy",
+        "models": [{"lang_code": "en", "model_name": "en_core_web_sm"}],
+    }
+    provider = NlpEngineProvider(nlp_configuration=nlp_configuration)
+    nlp_engine = provider.create_engine()
+    analyzer = AnalyzerEngine(nlp_engine=nlp_engine, supported_languages=["en"])
 
     # Custom: dollar amounts (matches $20,000 / $20000 / $20K / $1.5M / USD 5000)
     money_pattern = Pattern(
